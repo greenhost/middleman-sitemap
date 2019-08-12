@@ -2,6 +2,7 @@
 class Sitemap < ::Middleman::Extension
   option :gzip, true, 'Whether or not to GZIP the resulting file'
   option :hostname, "http://www.example.com", "The hostname for your website"
+  option :ignore_paths, [], "Array of regular expressions that should not match paths that get added to the sitemap"
 
   include Padrino::Helpers
 
@@ -22,7 +23,7 @@ class Sitemap < ::Middleman::Extension
   end
 
   def generate_sitemap
-    pages = get_pages
+    pages = get_pages(options.ignore_paths)
 
     if pages.count > 50000
       sitemaps = build_multiple_sitemaps(pages)
@@ -45,21 +46,12 @@ class Sitemap < ::Middleman::Extension
     template = Tilt::ERBTemplate.new(File.expand_path(File.join("#{File.dirname(__FILE__)}", "../../templates/sitemapindex.xml.erb")))
     sitemap = template.render(self)
 
-<<<<<<< Updated upstream
     outfile = File.join(app.config.build_dir, "sitemap.xml")
     File.open(outfile, 'w') {|f| f.write(sitemap) }
 
     @builder.thor.say_status :create, "#{app.config.build_dir}/sitemap.xml"
 
     return "#{app.config.build_dir}/sitemap.xml"
-=======
-    outfile = File.join(app.config[:build_dir], "sitemap.xml")
-    File.open(outfile, 'w') {|f| f.write(sitemap) }
-
-    @builder.say_status :create, "#{app.config[:build_dir]}/sitemap.xml"
-
-    return "#{app.config[:build_dir]}/sitemap.xml"
->>>>>>> Stashed changes
   end
 
   def build_sitemap(name, pages)
@@ -69,21 +61,12 @@ class Sitemap < ::Middleman::Extension
     template = Tilt::ERBTemplate.new(templates_path, 0, :trim => '>')
     sitemap = template.render(self)
 
-<<<<<<< Updated upstream
     outfile = File.join(app.config.build_dir, name)
     File.open(outfile, 'w') {|f| f.write(sitemap) }
 
     @builder.thor.say_status :create, "#{app.config.build_dir}/#{name}"
 
     return "#{app.config.build_dir}/#{name}"
-=======
-    outfile = File.join(app.config[:build_dir], name)
-    File.open(outfile, 'w') {|f| f.write(sitemap) }
-
-    @builder.say_status :create, "#{app.config[:build_dir]}/#{name}"
-
-    return "#{app.config[:build_dir]}/#{name}"
->>>>>>> Stashed changes
   end
 
   def build_multiple_sitemaps(pages)
@@ -111,19 +94,25 @@ class Sitemap < ::Middleman::Extension
 
   # Returns a URL with proper HTML entities
   def encode(path)
-<<<<<<< Updated upstream
     str = path.split("/").map { |f| h(f) }.join("/")
     str = str + "/" if path[-1] == "/"
-=======
-    str = path.split("/").map { |f| ::Rack::Utils.escape_html(f) }.join("/")
->>>>>>> Stashed changes
     return str
   end
 
   private
 
-  def get_pages
-    app.sitemap.resources.find_all { |p| p.ext == ".html" && !p.data.ignore }
+  def get_pages(ignore_paths)
+    return app.sitemap.resources.find_all do |p|
+      p.ext == ".html" && !p.data.ignore && !match_regexes(ignore_paths, p.path)
+    end
   end
 
+  def match_regexes(patterns, string)
+    patterns.each do |pattern|
+      if pattern.match?(string)
+        return false
+      end
+    end
+    return true
+  end
 end
