@@ -107,12 +107,13 @@ class Sitemap < ::Middleman::Extension
     end
   end
 
+  # Returns true if one of the patterns in "patterns" matches "string"
   def match_regexes(patterns, string)
     patterns.each do |pattern|
       if pattern.match?(string)
-        return false
+        return true
       end
     end
-    return true
+    return false
   end
 end
