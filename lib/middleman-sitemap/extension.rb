@@ -45,12 +45,21 @@ class Sitemap < ::Middleman::Extension
     template = Tilt::ERBTemplate.new(File.expand_path(File.join("#{File.dirname(__FILE__)}", "../../templates/sitemapindex.xml.erb")))
     sitemap = template.render(self)
 
+<<<<<<< Updated upstream
     outfile = File.join(app.config.build_dir, "sitemap.xml")
     File.open(outfile, 'w') {|f| f.write(sitemap) }
 
     @builder.thor.say_status :create, "#{app.config.build_dir}/sitemap.xml"
 
     return "#{app.config.build_dir}/sitemap.xml"
+=======
+    outfile = File.join(app.config[:build_dir], "sitemap.xml")
+    File.open(outfile, 'w') {|f| f.write(sitemap) }
+
+    @builder.say_status :create, "#{app.config[:build_dir]}/sitemap.xml"
+
+    return "#{app.config[:build_dir]}/sitemap.xml"
+>>>>>>> Stashed changes
   end
 
   def build_sitemap(name, pages)
@@ -60,12 +69,21 @@ class Sitemap < ::Middleman::Extension
     template = Tilt::ERBTemplate.new(templates_path, 0, :trim => '>')
     sitemap = template.render(self)
 
+<<<<<<< Updated upstream
     outfile = File.join(app.config.build_dir, name)
     File.open(outfile, 'w') {|f| f.write(sitemap) }
 
     @builder.thor.say_status :create, "#{app.config.build_dir}/#{name}"
 
     return "#{app.config.build_dir}/#{name}"
+=======
+    outfile = File.join(app.config[:build_dir], name)
+    File.open(outfile, 'w') {|f| f.write(sitemap) }
+
+    @builder.say_status :create, "#{app.config[:build_dir]}/#{name}"
+
+    return "#{app.config[:build_dir]}/#{name}"
+>>>>>>> Stashed changes
   end
 
   def build_multiple_sitemaps(pages)
@@ -93,8 +111,12 @@ class Sitemap < ::Middleman::Extension
 
   # Returns a URL with proper HTML entities
   def encode(path)
+<<<<<<< Updated upstream
     str = path.split("/").map { |f| h(f) }.join("/")
     str = str + "/" if path[-1] == "/"
+=======
+    str = path.split("/").map { |f| ::Rack::Utils.escape_html(f) }.join("/")
+>>>>>>> Stashed changes
     return str
   end
 
